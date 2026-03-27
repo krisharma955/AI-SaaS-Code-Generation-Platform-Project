@@ -1,33 +1,39 @@
 package com.K955.AI_SaaS_Code_Generation_Platform.Entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 
 @Getter
 @Setter
 @Entity
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "users")
 public class User {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    String email;
+    @Column(nullable = false)
+    String username;
 
-    String passwordHash;
+    String password;
 
+    @Column(nullable = false)
     String name;
 
-    String avatarUrl;
-
+    @CreationTimestamp
     Instant createdAt;
 
+    @UpdateTimestamp
     Instant updatedAt;
 
     Instant deletedAt; //soft delete

@@ -1,8 +1,8 @@
 package com.K955.AI_SaaS_Code_Generation_Platform.Controllers;
 
-import com.K955.AI_SaaS_Code_Generation.DTOs.Subscription.*;
-import com.K955.AI_SaaS_Code_Generation.Service.PlanService;
-import com.K955.AI_SaaS_Code_Generation.Service.SubscriptionService;
+import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Subscription.*;
+import com.K955.AI_SaaS_Code_Generation_Platform.Service.PlanService;
+import com.K955.AI_SaaS_Code_Generation_Platform.Service.SubscriptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
