@@ -3,6 +3,7 @@ package com.K955.AI_SaaS_Code_Generation_Platform.Controllers;
 import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Subscription.*;
 import com.K955.AI_SaaS_Code_Generation_Platform.Service.PlanService;
 import com.K955.AI_SaaS_Code_Generation_Platform.Service.SubscriptionService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +33,7 @@ public class BillingController {
     }
 
     @PostMapping("/api/stripe/checkout")
-    public ResponseEntity<CheckoutResponse> createCheckoutResponse(@RequestBody CheckoutRequest request) {
+    public ResponseEntity<CheckoutResponse> createCheckoutResponse(@RequestBody @Valid CheckoutRequest request) {
         Long userId = 1L;
         return ResponseEntity.ok(subscriptionService.createCheckoutSessionUrl(request, userId));
     }
