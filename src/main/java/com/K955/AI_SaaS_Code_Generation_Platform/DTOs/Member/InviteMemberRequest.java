@@ -9,7 +9,7 @@ public record InviteMemberRequest(
 
         @Email
         @NotBlank
-        String email,
+        String username,
 
         @NotNull
         ProjectRole role

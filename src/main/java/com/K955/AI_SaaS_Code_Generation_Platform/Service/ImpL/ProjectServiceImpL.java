@@ -4,9 +4,13 @@ import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Project.ProjectRequest;
 import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Project.ProjectResponse;
 import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Project.ProjectSummaryResponse;
 import com.K955.AI_SaaS_Code_Generation_Platform.Entity.Project;
+import com.K955.AI_SaaS_Code_Generation_Platform.Entity.ProjectMember;
+import com.K955.AI_SaaS_Code_Generation_Platform.Entity.ProjectMemberId;
 import com.K955.AI_SaaS_Code_Generation_Platform.Entity.User;
+import com.K955.AI_SaaS_Code_Generation_Platform.Enum.ProjectRole;
 import com.K955.AI_SaaS_Code_Generation_Platform.Exception.ResourceNotFoundException;
 import com.K955.AI_SaaS_Code_Generation_Platform.Mapper.ProjectMapper;
+import com.K955.AI_SaaS_Code_Generation_Platform.Repository.ProjectMemberRepository;
 import com.K955.AI_SaaS_Code_Generation_Platform.Repository.ProjectRepository;
 import com.K955.AI_SaaS_Code_Generation_Platform.Repository.UserRepository;
 import com.K955.AI_SaaS_Code_Generation_Platform.Service.ProjectService;
@@ -21,6 +25,7 @@ import java.util.List;
 public class ProjectServiceImpL implements ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final ProjectMemberRepository projectMemberRepository;
     private final UserRepository userRepository;
     private final ProjectMapper projectMapper;
 
@@ -39,15 +44,27 @@ public class ProjectServiceImpL implements ProjectService {
 
     @Override
     public ProjectResponse createProject(ProjectRequest request, Long userId) {
-        User user = userRepository.findById(userId)
+        User owner = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(userId.toString(), "User"));
 
         Project project = Project.builder()
                 .name(request.name())
-                .owner(user)
                 .build();
 
         Project saved = projectRepository.save(project);
+
+        ProjectMemberId projectMemberId = new ProjectMemberId(saved.getId(), owner.getId());
+
+        ProjectMember projectMember = ProjectMember.builder()
+                .id(projectMemberId)
+                .projectRole(ProjectRole.OWNER)
+                .project(saved)
+                .user(owner)
+                .acceptedAt(Instant.now())
+                .invitedAt(Instant.now())
+                .build();
+
+        projectMemberRepository.save(projectMember);
 
         return projectMapper.toProjectResponse(saved);
     }

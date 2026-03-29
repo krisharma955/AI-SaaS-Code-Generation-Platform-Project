@@ -29,12 +29,12 @@ public class AuthServiceImpL implements AuthService {
 
     @Override
     public AuthResponse signup(SignupRequest request) {
-        Boolean check = userRepository.existsByUsername(request.email());
-        if(check) throw new BadRequestException("User with email: " +request.email()+ " already exists.");
+        Boolean check = userRepository.existsByUsername(request.username());
+        if(check) throw new BadRequestException("User with username: " +request.username()+ " already exists.");
 
         User user = User.builder()
                 .name(request.name())
-                .username(request.email())
+                .username(request.username())
                 .password(request.password())
                 .build();
         user.setPassword(passwordEncoder.encode(request.password()));
@@ -49,14 +49,14 @@ public class AuthServiceImpL implements AuthService {
     public AuthResponse login(LoginRequest request) {
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.email(), request.password())
+                    new UsernamePasswordAuthenticationToken(request.username(), request.password())
             );
         } catch (Exception e) {
-            throw new BadCredentialsException("Invalid email or password");
+            throw new BadCredentialsException("Invalid username or password");
         }
 
-        User user = userRepository.findByUsername(request.email())
-                .orElseThrow(() -> new ResourceNotFoundException(request.email(), "User"));
+        User user = userRepository.findByUsername(request.username())
+                .orElseThrow(() -> new ResourceNotFoundException(request.username(), "User"));
 
         String accessToken = jwtAuthUtil.generateAccessToken(user);
 

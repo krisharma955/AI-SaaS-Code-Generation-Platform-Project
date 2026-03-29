@@ -8,7 +8,7 @@ public record LoginRequest(
 
         @Email
         @NotBlank
-        String email,
+        String username,
 
         @Size(min = 4, max = 50)
         String password

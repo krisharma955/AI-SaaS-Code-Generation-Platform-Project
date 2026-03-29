@@ -35,17 +35,11 @@ public class ProjectMemberServiceImpL implements ProjectMemberService {
         Project project = projectRepository.findAccessibleProjectById(userId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException(projectId.toString(), "Project"));
 
-        List<MemberResponse> memberResponseList = new ArrayList<>();
-        memberResponseList.add(projectMemberMapper.toMemberResponse(project.getOwner()));
-
-        memberResponseList.addAll(
+        return new ArrayList<>(
                 projectMemberRepository.findByIdProjectId(projectId)
-                        .stream()
-                        .map(projectMemberMapper::toMemberResponseFromProjectMember)
-                        .toList()
-        );
-
-        return memberResponseList;
+                .stream()
+                .map(projectMemberMapper::toMemberResponseFromProjectMember)
+                .toList());
     }
 
     @Override
@@ -53,12 +47,8 @@ public class ProjectMemberServiceImpL implements ProjectMemberService {
         Project project = projectRepository.findAccessibleProjectById(userId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException(projectId.toString(), "Project"));
 
-        if(!project.getOwner().getId().equals(userId)) {
-            throw new BadRequestException("Only Owner can invite members");
-        }
-
-        User invitee = userRepository.findByUsername(request.email())
-                .orElseThrow(() -> new ResourceNotFoundException(request.email(), "User"));
+        User invitee = userRepository.findByUsername(request.username())
+                .orElseThrow(() -> new ResourceNotFoundException(request.username(), "User"));
 
         if(invitee.getId().equals(userId)) {
             throw new BadRequestException("Cannot invite yourself");
@@ -88,10 +78,6 @@ public class ProjectMemberServiceImpL implements ProjectMemberService {
         Project project = projectRepository.findAccessibleProjectById(userId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException(projectId.toString(), "Project"));
 
-        if(!project.getOwner().getId().equals(userId)) {
-            throw new BadRequestException("Only Owner can modify member roles");
-        }
-
         ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
 
         ProjectMember projectMember = projectMemberRepository.findById(projectMemberId)
@@ -108,10 +94,6 @@ public class ProjectMemberServiceImpL implements ProjectMemberService {
     public void deleteProjectMember(Long projectId, Long memberId, Long userId) {
         Project project = projectRepository.findAccessibleProjectById(userId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException(projectId.toString(), "Project"));
-
-        if(!project.getOwner().getId().equals(userId)) {
-            throw new BadRequestException("Only Owner can modify member roles");
-        }
 
         ProjectMemberId projectMemberId = new ProjectMemberId(projectId, memberId);
 

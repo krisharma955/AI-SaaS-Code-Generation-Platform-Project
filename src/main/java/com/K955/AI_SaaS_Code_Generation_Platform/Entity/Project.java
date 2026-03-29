@@ -15,7 +15,13 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "projects")
+@Table(name = "projects",
+        indexes = {
+                @Index(name = "idx_project_updated_at_desc", columnList = "updated_at DESC, deleted_at"),
+                @Index(name = "idx_project_deleted_at_updated_at_desc", columnList = "deleted_at, updated_at DESC"),
+                @Index(name = "idx_project_deleted_at", columnList = "deleted_at")
+        } //indexes majorly on the cols used in where clause
+)
 public class Project {
 
     @Id
@@ -24,10 +30,6 @@ public class Project {
 
     @Column(nullable = false)
     String name;
-
-    @ManyToOne
-    @JoinColumn(name = "userId", nullable = false)
-    User owner;
 
     @Builder.Default
     Boolean isPublic = false;

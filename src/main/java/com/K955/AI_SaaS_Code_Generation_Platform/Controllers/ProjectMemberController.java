@@ -4,6 +4,7 @@ import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Member.InviteMemberRequest
 import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Member.MemberResponse;
 import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Member.UpdateMemberRoleRequest;
 import com.K955.AI_SaaS_Code_Generation_Platform.Entity.ProjectMember;
+import com.K955.AI_SaaS_Code_Generation_Platform.Security.JwtAuthUtil;
 import com.K955.AI_SaaS_Code_Generation_Platform.Service.ProjectMemberService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -21,10 +22,11 @@ import java.util.List;
 public class ProjectMemberController {
 
     private final ProjectMemberService projectMemberService;
+    private final JwtAuthUtil jwtAuthUtil;
 
     @GetMapping
     public ResponseEntity<List<MemberResponse>> getProjectMembers(@PathVariable Long projectId) {
-        Long userId = 1L;
+        Long userId = jwtAuthUtil.getCurrentUserId();
         return ResponseEntity.ok(projectMemberService.getProjectMembers(projectId, userId));
     }
 
@@ -33,7 +35,7 @@ public class ProjectMemberController {
             @PathVariable Long projectId,
             @RequestBody @Valid InviteMemberRequest request
     ) {
-        Long userId = 1L;
+        Long userId = jwtAuthUtil.getCurrentUserId();
         return ResponseEntity.ok(projectMemberService.inviteMember(projectId, request, userId));
     }
 
@@ -43,7 +45,7 @@ public class ProjectMemberController {
             @PathVariable Long memberId,
             @RequestBody @Valid UpdateMemberRoleRequest request
     ) {
-        Long userId = 1L;
+        Long userId = jwtAuthUtil.getCurrentUserId();
         return ResponseEntity.ok(projectMemberService.updateMemberRole(projectId, memberId, request, userId));
     }
 
@@ -52,7 +54,7 @@ public class ProjectMemberController {
             @PathVariable Long projectId,
             @PathVariable Long memberId
     ) {
-        Long userId = 1L;
+        Long userId = jwtAuthUtil.getCurrentUserId();
         projectMemberService.deleteProjectMember(projectId, memberId, userId);
         return ResponseEntity.noContent().build();
     }
