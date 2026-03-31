@@ -15,6 +15,7 @@ import com.K955.AI_SaaS_Code_Generation_Platform.Repository.ProjectRepository;
 import com.K955.AI_SaaS_Code_Generation_Platform.Repository.UserRepository;
 import com.K955.AI_SaaS_Code_Generation_Platform.Service.ProjectMemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -31,6 +32,7 @@ public class ProjectMemberServiceImpL implements ProjectMemberService {
     private final ProjectMemberMapper projectMemberMapper;
 
     @Override
+    @PreAuthorize("@security.canViewMembers(#projectId)")
     public List<MemberResponse> getProjectMembers(Long projectId, Long userId) {
         Project project = projectRepository.findAccessibleProjectById(userId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException(projectId.toString(), "Project"));
@@ -43,6 +45,7 @@ public class ProjectMemberServiceImpL implements ProjectMemberService {
     }
 
     @Override
+    @PreAuthorize("@security.canManageMembers(#projectId)")
     public MemberResponse inviteMember(Long projectId, InviteMemberRequest request, Long userId) {
         Project project = projectRepository.findAccessibleProjectById(userId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException(projectId.toString(), "Project"));
@@ -74,6 +77,7 @@ public class ProjectMemberServiceImpL implements ProjectMemberService {
     }
 
     @Override
+    @PreAuthorize("@security.canManageMembers(#projectId)")
     public MemberResponse updateMemberRole(Long projectId, Long memberId, UpdateMemberRoleRequest request, Long userId) {
         Project project = projectRepository.findAccessibleProjectById(userId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException(projectId.toString(), "Project"));
@@ -91,6 +95,7 @@ public class ProjectMemberServiceImpL implements ProjectMemberService {
     }
 
     @Override
+    @PreAuthorize("@security.canManageMembers(#projectId)")
     public void deleteProjectMember(Long projectId, Long memberId, Long userId) {
         Project project = projectRepository.findAccessibleProjectById(userId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException(projectId.toString(), "Project"));

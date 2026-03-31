@@ -15,6 +15,7 @@ import com.K955.AI_SaaS_Code_Generation_Platform.Repository.ProjectRepository;
 import com.K955.AI_SaaS_Code_Generation_Platform.Repository.UserRepository;
 import com.K955.AI_SaaS_Code_Generation_Platform.Service.ProjectService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -36,6 +37,7 @@ public class ProjectServiceImpL implements ProjectService {
     }
 
     @Override
+    @PreAuthorize("@security.canViewProject(#projectId)") //SpEL -> Spring Expression Language
     public ProjectResponse getUserProjectById(Long projectId, Long userId) {
         Project project = projectRepository.findAccessibleProjectById(userId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException(projectId.toString(), "Project"));
@@ -70,6 +72,7 @@ public class ProjectServiceImpL implements ProjectService {
     }
 
     @Override
+    @PreAuthorize("@security.canEditProject(#projectId)")
     public ProjectResponse updateProject(Long projectId, ProjectRequest request, Long userId) {
         Project project = projectRepository.findAccessibleProjectById(userId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException(projectId.toString(), "Project"));
@@ -84,6 +87,7 @@ public class ProjectServiceImpL implements ProjectService {
     }
 
     @Override
+    @PreAuthorize("@security.canDeleteProject(#projectId)")
     public void softDelete(Long projectId, Long userId) {
         Project project = projectRepository.findAccessibleProjectById(userId, projectId)
                 .orElseThrow(() -> new ResourceNotFoundException(projectId.toString(), "Project"));
