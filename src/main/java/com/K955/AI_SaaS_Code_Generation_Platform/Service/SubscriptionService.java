@@ -7,8 +7,4 @@ import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Subscription.SubscriptionR
 
 public interface SubscriptionService {
     SubscriptionResponse getCurrentSubscription(Long userId);
-
-    CheckoutResponse createCheckoutSessionUrl(CheckoutRequest request, Long userId);
-
-    PortalResponse openCustomerPortal(Long userId);
 }
