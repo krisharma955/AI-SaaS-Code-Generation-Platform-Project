@@ -4,7 +4,21 @@ import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Subscription.CheckoutReque
 import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Subscription.CheckoutResponse;
 import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Subscription.PortalResponse;
 import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Subscription.SubscriptionResponse;
+import com.K955.AI_SaaS_Code_Generation_Platform.Enum.SubscriptionStatus;
+
+import java.time.Instant;
 
 public interface SubscriptionService {
-    SubscriptionResponse getCurrentSubscription(Long userId);
+    SubscriptionResponse getCurrentSubscription();
+
+    void activateSubscription(Long userId, Long planId, String subscriptionId, String customerId);
+
+    void updateSubscription(String subscriptionId, SubscriptionStatus status, Instant periodStart, Instant periodEnd, Boolean cancelAtPeriodEnd, Long planId);
+
+    void cancelSubscription(String subscriptionId);
+
+    void renewSubscriptionPeriod(String subscriptionId, Instant periodStart, Instant periodEnd);
+
+    void markSubscriptionPastDue(String subscriptionId);
+
 }
