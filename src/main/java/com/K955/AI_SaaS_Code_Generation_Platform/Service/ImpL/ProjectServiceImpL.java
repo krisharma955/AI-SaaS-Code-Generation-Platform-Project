@@ -8,12 +8,14 @@ import com.K955.AI_SaaS_Code_Generation_Platform.Entity.ProjectMember;
 import com.K955.AI_SaaS_Code_Generation_Platform.Entity.ProjectMemberId;
 import com.K955.AI_SaaS_Code_Generation_Platform.Entity.User;
 import com.K955.AI_SaaS_Code_Generation_Platform.Enum.ProjectRole;
+import com.K955.AI_SaaS_Code_Generation_Platform.Exception.BadRequestException;
 import com.K955.AI_SaaS_Code_Generation_Platform.Exception.ResourceNotFoundException;
 import com.K955.AI_SaaS_Code_Generation_Platform.Mapper.ProjectMapper;
 import com.K955.AI_SaaS_Code_Generation_Platform.Repository.ProjectMemberRepository;
 import com.K955.AI_SaaS_Code_Generation_Platform.Repository.ProjectRepository;
 import com.K955.AI_SaaS_Code_Generation_Platform.Repository.UserRepository;
 import com.K955.AI_SaaS_Code_Generation_Platform.Service.ProjectService;
+import com.K955.AI_SaaS_Code_Generation_Platform.Service.SubscriptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ public class ProjectServiceImpL implements ProjectService {
     private final ProjectMemberRepository projectMemberRepository;
     private final UserRepository userRepository;
     private final ProjectMapper projectMapper;
+    private final SubscriptionService subscriptionService;
 
     @Override
     public List<ProjectSummaryResponse> getUserProjects(Long userId) {
@@ -46,6 +49,10 @@ public class ProjectServiceImpL implements ProjectService {
 
     @Override
     public ProjectResponse createProject(ProjectRequest request, Long userId) {
+        if(!subscriptionService.canCreateNewProject()) {
+            throw new BadRequestException("User cannot a New Project with current Plan, Upgrade Plan Now");
+        }
+
         User owner = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException(userId.toString(), "User"));
 

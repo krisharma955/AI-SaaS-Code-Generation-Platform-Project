@@ -6,9 +6,11 @@ import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Subscription.PortalRespons
 import com.K955.AI_SaaS_Code_Generation_Platform.Entity.Plan;
 import com.K955.AI_SaaS_Code_Generation_Platform.Entity.User;
 import com.K955.AI_SaaS_Code_Generation_Platform.Enum.SubscriptionStatus;
+import com.K955.AI_SaaS_Code_Generation_Platform.Exception.BadRequestException;
 import com.K955.AI_SaaS_Code_Generation_Platform.Exception.ResourceNotFoundException;
 import com.K955.AI_SaaS_Code_Generation_Platform.Repository.PlanRepository;
 import com.K955.AI_SaaS_Code_Generation_Platform.Repository.UserRepository;
+import com.K955.AI_SaaS_Code_Generation_Platform.Security.JwtAuthUtil;
 import com.K955.AI_SaaS_Code_Generation_Platform.Service.PaymentProcessor;
 import com.K955.AI_SaaS_Code_Generation_Platform.Service.SubscriptionService;
 import com.stripe.exception.StripeException;
@@ -31,6 +33,7 @@ public class StripePaymentProcessor implements PaymentProcessor {
     private final PlanRepository planRepository;
     private final UserRepository userRepository;
     private final SubscriptionService subscriptionService;
+    private final JwtAuthUtil jwtAuthUtil;
 
     @Value("${client.url}")
     private String frontendUrl;
@@ -61,6 +64,7 @@ public class StripePaymentProcessor implements PaymentProcessor {
 
         try {
             String stripeCustomerId = user.getStripeCustomerId();
+            System.out.println("Stripe Customer ID = " + user.getStripeCustomerId());
             if(stripeCustomerId == null || stripeCustomerId.isEmpty()) {
                 params.setCustomerEmail(user.getUsername());
             } else {
@@ -76,7 +80,26 @@ public class StripePaymentProcessor implements PaymentProcessor {
 
     @Override
     public PortalResponse openCustomerPortal() {
-        return null;
+        Long userId = jwtAuthUtil.getCurrentUserId();
+        User user = getUser(userId);
+        String stripeCustomerId = user.getStripeCustomerId();
+
+        if(stripeCustomerId == null || stripeCustomerId.isEmpty()) {
+            throw new BadRequestException("User does not have a Stripe Customer Id, userId: " +userId);
+        }
+
+        try {
+            var portalSession = com.stripe.model.billingportal.Session.create(
+                    com.stripe.param.billingportal.SessionCreateParams.builder()
+                            .setCustomer(stripeCustomerId)
+                            .setReturnUrl(frontendUrl)
+                            .build()
+            );
+
+            return new PortalResponse(portalSession.getUrl());
+        } catch (StripeException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -104,10 +127,9 @@ public class StripePaymentProcessor implements PaymentProcessor {
         Long planId = Long.parseLong(metaData.get("plan_id"));
 
         String subscriptionId = session.getSubscription();
-        String customerId = session.getId(); //Stripe Customer id
+        String customerId = session.getCustomer(); //Stripe Customer id
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException(userId.toString(), "User"));
+        User user = getUser(userId);
         if(user.getStripeCustomerId() == null) {
             user.setStripeCustomerId(customerId);
             userRepository.save(user);
@@ -177,6 +199,11 @@ public class StripePaymentProcessor implements PaymentProcessor {
     }
 
     /// Utility Methods ///
+
+    private User getUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId.toString()));
+    }
 
     private SubscriptionStatus mapStripeStatusToEnum(String status) { //small case - Stripe Status
         return switch (status) {
