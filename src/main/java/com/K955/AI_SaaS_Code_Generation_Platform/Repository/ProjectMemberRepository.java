@@ -1,6 +1,5 @@
 package com.K955.AI_SaaS_Code_Generation_Platform.Repository;
 
-import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Member.MemberResponse;
 import com.K955.AI_SaaS_Code_Generation_Platform.Entity.ProjectMember;
 import com.K955.AI_SaaS_Code_Generation_Platform.Entity.ProjectMemberId;
 import com.K955.AI_SaaS_Code_Generation_Platform.Enum.ProjectRole;
@@ -29,7 +28,7 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember, Pr
     @Query("""
             SELECT COUNT(pm) FROM ProjectMember pm
             WHERE pm.id.userId = :userId
-            AND pm.role = 'OWNER'
+            AND pm.projectRole = 'OWNER'
             """)
     int countProjectOwnedByUser(@Param("userId") Long userId);
 }

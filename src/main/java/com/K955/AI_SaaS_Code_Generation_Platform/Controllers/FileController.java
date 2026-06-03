@@ -2,7 +2,7 @@ package com.K955.AI_SaaS_Code_Generation_Platform.Controllers;
 
 import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Project.FileContentResponse;
 import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Project.FileNode;
-import com.K955.AI_SaaS_Code_Generation_Platform.Service.FileService;
+import com.K955.AI_SaaS_Code_Generation_Platform.Service.ProjectFileService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -20,18 +20,18 @@ import java.util.List;
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class FileController {
 
-    private final FileService fileService;
+    private final ProjectFileService projectFileService;
 
     @GetMapping
     public ResponseEntity<List<FileNode>> getFileTree(@PathVariable Long projectId) {
         Long userId = 1L;
-        return ResponseEntity.ok(fileService.getFileTree(projectId, userId));
+        return ResponseEntity.ok(projectFileService.getFileTree(projectId, userId));
     }
 
     @GetMapping("/{*path}")
     public ResponseEntity<FileContentResponse> getFile(@PathVariable Long projectId, @PathVariable String path) {
         Long userId = 1L;
-        return ResponseEntity.ok(fileService.getFileContent(projectId, path, userId));
+        return ResponseEntity.ok(projectFileService.getFileContent(projectId, path, userId));
     }
 
 }

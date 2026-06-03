@@ -23,6 +23,7 @@ import java.util.Set;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class SubscriptionServiceImpL implements SubscriptionService {
 
@@ -33,7 +34,7 @@ public class SubscriptionServiceImpL implements SubscriptionService {
     private final PlanRepository planRepository;
     private final ProjectMemberRepository projectMemberRepository;
 
-    private final Integer FREE_TIER_PROJECTS_ALLOWED = 1;
+    private final Integer FREE_TIER_PROJECTS_ALLOWED = 100;
 
     @Override
     public SubscriptionResponse getCurrentSubscription() {
