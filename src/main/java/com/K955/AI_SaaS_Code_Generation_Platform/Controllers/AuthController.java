@@ -4,6 +4,7 @@ import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Auth.AuthResponse;
 import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Auth.LoginRequest;
 import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Auth.SignupRequest;
 import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Auth.UserProfileResponse;
+import com.K955.AI_SaaS_Code_Generation_Platform.Security.JwtAuthUtil;
 import com.K955.AI_SaaS_Code_Generation_Platform.Service.AuthService;
 import com.K955.AI_SaaS_Code_Generation_Platform.Service.UserService;
 import jakarta.validation.Valid;
@@ -18,6 +19,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final UserService userService;
+    private final JwtAuthUtil jwtAuthUtil;
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> signup(@RequestBody @Valid SignupRequest request) {
@@ -31,7 +33,7 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<UserProfileResponse> getProfile() {
-        Long userId = 1L;
+        Long userId = jwtAuthUtil.getCurrentUserId();
         return ResponseEntity.ok(userService.getProfile(userId));
     }
 

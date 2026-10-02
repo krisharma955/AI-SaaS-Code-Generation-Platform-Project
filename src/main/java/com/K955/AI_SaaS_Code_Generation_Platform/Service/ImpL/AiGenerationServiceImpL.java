@@ -25,7 +25,7 @@ public class AiGenerationServiceImpL implements AiGenerationService {
     private final JwtAuthUtil jwtAuthUtil;
     private final ProjectFileService projectFileService;
 
-    private static final Pattern FILE_TAG_PATTERN = Pattern.compile("<file path=\"([^\"]+)\">(.*?)</file>", Pattern.DOTALL);
+    private static final Pattern FILE_TAG_PATTERN = Pattern.compile("<file[^>]*path\\s*=\\s*[\"']([^\"']+)[\"'][^>]*>(.*?)</file>", Pattern.DOTALL);
 
     @Override
     @PreAuthorize("@security.canEditProject(#projectId)") //check if the user can edit the project or not
@@ -65,18 +65,6 @@ public class AiGenerationServiceImpL implements AiGenerationService {
     }
 
     private void parseAndSaveFiles(String fullResponse, Long projectId) {
-//        String dummy = """
-//                        <message> I'm going to read the files and generate the code </message>
-//                        <file path="src/App.jsx">
-//                            import App from './App.jsx'
-//                            ......
-//                        <file>
-//                        <message> I'm going to read the files and generate the code </message>
-//                        <file path="src/App.jsx">
-//                            import App from './App.jsx'
-//                            ......
-//                        <file>
-//                        """
         Matcher matcher = FILE_TAG_PATTERN.matcher(fullResponse);
         while(matcher.find()) {
             String filePath = matcher.group(1);

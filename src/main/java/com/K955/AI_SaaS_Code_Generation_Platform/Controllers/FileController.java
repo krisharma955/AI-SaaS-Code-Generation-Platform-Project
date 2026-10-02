@@ -2,6 +2,7 @@ package com.K955.AI_SaaS_Code_Generation_Platform.Controllers;
 
 import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Project.FileContentResponse;
 import com.K955.AI_SaaS_Code_Generation_Platform.DTOs.Project.FileNode;
+import com.K955.AI_SaaS_Code_Generation_Platform.Security.JwtAuthUtil;
 import com.K955.AI_SaaS_Code_Generation_Platform.Service.ProjectFileService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,16 +22,17 @@ import java.util.List;
 public class FileController {
 
     private final ProjectFileService projectFileService;
+    private final JwtAuthUtil jwtAuthUtil;
 
     @GetMapping
     public ResponseEntity<List<FileNode>> getFileTree(@PathVariable Long projectId) {
-        Long userId = 1L;
+        Long userId = jwtAuthUtil.getCurrentUserId();
         return ResponseEntity.ok(projectFileService.getFileTree(projectId, userId));
     }
 
     @GetMapping("/{*path}")
     public ResponseEntity<FileContentResponse> getFile(@PathVariable Long projectId, @PathVariable String path) {
-        Long userId = 1L;
+        Long userId = jwtAuthUtil.getCurrentUserId();
         return ResponseEntity.ok(projectFileService.getFileContent(projectId, path, userId));
     }
 
