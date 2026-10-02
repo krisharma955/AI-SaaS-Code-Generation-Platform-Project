@@ -15,6 +15,7 @@ import com.K955.AI_SaaS_Code_Generation_Platform.Repository.ProjectMemberReposit
 import com.K955.AI_SaaS_Code_Generation_Platform.Repository.ProjectRepository;
 import com.K955.AI_SaaS_Code_Generation_Platform.Repository.UserRepository;
 import com.K955.AI_SaaS_Code_Generation_Platform.Service.ProjectService;
+import com.K955.AI_SaaS_Code_Generation_Platform.Service.ProjectTemplateService;
 import com.K955.AI_SaaS_Code_Generation_Platform.Service.SubscriptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,6 +33,7 @@ public class ProjectServiceImpL implements ProjectService {
     private final UserRepository userRepository;
     private final ProjectMapper projectMapper;
     private final SubscriptionService subscriptionService;
+    private final ProjectTemplateService projectTemplateService;
 
     @Override
     public List<ProjectSummaryResponse> getUserProjects(Long userId) {
@@ -74,6 +76,8 @@ public class ProjectServiceImpL implements ProjectService {
                 .build();
 
         projectMemberRepository.save(projectMember);
+
+        projectTemplateService.initializeProjectFromTemplate(project.getId());
 
         return projectMapper.toProjectResponse(saved);
     }

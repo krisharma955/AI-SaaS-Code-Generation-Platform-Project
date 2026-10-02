@@ -1,6 +1,8 @@
 package com.K955.AI_SaaS_Code_Generation_Platform.Service.ImpL;
 
+import com.K955.AI_SaaS_Code_Generation_Platform.LLM.Advisors.FileTreeContextAdvisor;
 import com.K955.AI_SaaS_Code_Generation_Platform.LLM.PromptUtils;
+import com.K955.AI_SaaS_Code_Generation_Platform.LLM.Tools.CodeGenerationTools;
 import com.K955.AI_SaaS_Code_Generation_Platform.Security.JwtAuthUtil;
 import com.K955.AI_SaaS_Code_Generation_Platform.Service.AiGenerationService;
 import com.K955.AI_SaaS_Code_Generation_Platform.Service.ProjectFileService;
@@ -24,6 +26,7 @@ public class AiGenerationServiceImpL implements AiGenerationService {
     private final ChatClient chatClient;
     private final JwtAuthUtil jwtAuthUtil;
     private final ProjectFileService projectFileService;
+    private final FileTreeContextAdvisor fileTreeContextAdvisor;
 
     private static final Pattern FILE_TAG_PATTERN = Pattern.compile("<file[^>]*path\\s*=\\s*[\"']([^\"']+)[\"'][^>]*>(.*?)</file>", Pattern.DOTALL);
 
@@ -41,12 +44,16 @@ public class AiGenerationServiceImpL implements AiGenerationService {
 
         StringBuilder fullResponseBuffer = new StringBuilder();
 
+        CodeGenerationTools codeGenerationTools = new CodeGenerationTools(projectFileService, projectId);
+
         return chatClient.prompt()
                 .system(PromptUtils.CODE_GENERATION_SYSTEM_PROMPT)
                 .user(userMessage)
+                .tools(codeGenerationTools)
                 .advisors(
                         advisorSpec -> {
                             advisorSpec.params(advisorParams);
+                            advisorSpec.advisors(fileTreeContextAdvisor);
                         }
                 )
                 .stream()
